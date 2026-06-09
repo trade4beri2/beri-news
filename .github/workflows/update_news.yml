@@ -1,1 +1,37 @@
+name: Update DFT News CSV
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # fut minden 30. percben
+  workflow_dispatch:          # kézi indítás lehetősége
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run DFT news updater
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python dft_update.py
+
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Auto-update news.csv (DFT 14 days)"
+        file_pattern: news.csv
 
